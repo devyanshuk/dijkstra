@@ -78,20 +78,22 @@ allEdges (Graph g) = [((source, _item), _weight)| (source, neighbors) <- g,
                                                   let _weight = weight neighbor
                       ]
 
+run :: [String] -> IO (Graph String)
+run [] = do
+          putStrLn "No argument provided. Program will read graph from the command line. Format : [vertex1] [vertex2] [edge]. Press Ctrl + D to produce results"
+          streamInput <- getContents
+          let k = length streamInput
+          return $ parseGraph streamInput
+
+run (inputFile:_) = do
+                      contents <- readFile inputFile
+                      return $ parseGraph contents
+
 main :: IO (Graph String)
 main = do
     inputFile <- getArgs
+    run inputFile
 
-    case inputFile of
-        [] -> do
-            putStrLn "No argument provided. Program will read graph from the command line. Format : [vertex1] [vertex2] [edge]. Press Ctrl + D to produce results"
-            streamInput <- getContents
-            putStrLn ""
-            return $ parseGraph streamInput
-
-        _ -> do
-            contents <- readFile $ head inputFile
-            return $ parseGraph contents
-
+    
 
     
