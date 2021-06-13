@@ -72,9 +72,7 @@ allVertices (Graph g) = removeDuplicates $ foldr (\(vertex, neighbors) acc -> ve
 
 allEdges :: Eq a => Graph a -> [((a, a), Weight)]
 allEdges Null = []
-allEdges (Graph g) = [((source, _item), _weight)| i <- g,
-                                                  let source = fst i,
-                                                  let neighbors = snd i,
+allEdges (Graph g) = [((source, _item), _weight)| (source, neighbors) <- g,
                                                   neighbor <- neighbors,
                                                   let _item = item neighbor,
                                                   let _weight = weight neighbor
