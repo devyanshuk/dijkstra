@@ -65,7 +65,21 @@ nodeFor = map item
 {- [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> [12.0, 1.0]   -}
 weightFor :: [Neighbor a] -> [Weight]
 weightFor = map weight
-            
+
+allVertices :: Eq a => Graph a -> [a]
+allVertices Null = []
+allVertices (Graph g) = removeDuplicates $ foldr (\(vertex, neighbors) acc -> vertex:((nodeFor neighbors) ++ acc)) [] g
+
+allEdges :: Eq a => Graph a -> [((a, a), Weight)]
+allEdges Null = []
+allEdges (Graph g) = [((source, _item), _weight)| i <- g,
+                                                  let source = fst i,
+                                                  let neighbors = snd i,
+                                                  neighbor <- neighbors,
+                                                  let _item = item neighbor,
+                                                  let _weight = weight neighbor
+                      ]
+
 main :: IO (Graph String)
 main = do
     inputFile <- getArgs
