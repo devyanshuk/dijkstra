@@ -13,6 +13,7 @@ where
 
 
 import Data.List
+import Text.Read(readMaybe)
 
 type Weight = Float
 data Neighbor a = Neighbor {
@@ -44,8 +45,12 @@ parseToGraph parsedLines = Graph (map (\n -> (n, outgoingEdges n)) nodes)
 
 {- Vertex1 Vertex2 Weight [Comments/Extra info will be ignored] -}
 parseLine :: RawInputLine -> ParsedInputLine String
-parseLine (vertex1:vertex2:weight:_) = ((vertex1, vertex2), read weight :: Weight)
-
+parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
+                                        Nothing -> error "Parse error"
+                                        Just _weight -> ((vertex1, vertex2), _weight)
+                                    where
+                                        parsedWeight = readMaybe weight :: Maybe Weight
+    
 {- given a string (node1 node2 weight)*, parse it into graph -}
 parseGraph :: [String] -> Graph String
 parseGraph [] = Null
