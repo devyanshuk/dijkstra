@@ -16,7 +16,9 @@ import Data.List
 import Text.Read(readMaybe)
 
 type Weight = Float
-data Neighbor a = Neighbor {
+
+data Neighbor a = Neighbor
+            {
                 item :: a,
                 weight :: Weight
             }
@@ -56,7 +58,7 @@ parseToGraph parsedLines = Graph (map (\n -> (n, outgoingEdges n)) nodes)
 {- Vertex1 Vertex2 Weight [Comments/Extra info will be ignored] -}
 parseLine :: RawInputLine
              -> ParsedInputLine String
-             
+
 parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
                                         Nothing -> error "Parse error"
                                         Just _weight -> ((vertex1, vertex2), _weight)
@@ -106,6 +108,7 @@ outgoingEdge graph@(Graph g) vertex = case info of
 {- [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> ["a", "b"]   -}
 nodeFor :: [Neighbor a] -> [a]
 nodeFor = map item
+
 
 
 {- [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> [12.0, 1.0]   -}
