@@ -4,12 +4,16 @@ import Data.Char(isSpace)
 import Data.List(dropWhile)
 import System.Environment(getArgs)
 
-loop :: [String] -> IO [String]
+loop :: [String] {- accumulator -}
+        -> IO [String]
+
 loop acc = do
     currLine <- getLine
     let trimmedLine = dropWhile isSpace currLine
     if trimmedLine == [] then return $ reverse acc
     else loop $ trimmedLine : acc
+
+
 
 fromConsole :: IO (Graph String)
 fromConsole = do
@@ -17,7 +21,10 @@ fromConsole = do
         input <- loop []
         return $ parseGraph input
 
-fromFile :: String -> IO (Graph String)
+
+
+fromFile :: String {- input filename -}
+            -> IO (Graph String)
 fromFile inputFile = do
         contents <- readFile inputFile
         return $ parseGraph $ lines contents
