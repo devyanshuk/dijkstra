@@ -1,4 +1,4 @@
-module Graph 
+module Deps.Graph 
 (
     Graph(..),
     Weight,

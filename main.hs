@@ -1,4 +1,5 @@
-import Graph
+import Deps.Graph
+import Deps.Dijkstra
 import Data.Char(isSpace)
 import Data.List(dropWhile)
 import System.Environment(getArgs)
