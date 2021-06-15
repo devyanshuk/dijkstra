@@ -40,6 +40,7 @@ removeDuplicates = nub
 
 
 
+{- Given a list of ((from, to), weight), convert it into a graph type -}
 parseToGraph :: [ParsedInputLine String]
                 -> Graph String
 
@@ -117,6 +118,7 @@ weightFor = map weight
 
 
 
+{- return all vertices of a graph. -}
 allVertices :: Eq a
                => Graph a
                -> [a]
@@ -126,6 +128,7 @@ allVertices (Graph g) = removeDuplicates $ foldr (\(vertex, neighbors) acc -> ve
 
 
 
+{- return all edges of a graph. Format : ((from, to), weight) -}
 allEdges :: Eq a => Graph a
             -> [((a, a), Weight)] {- [((from, to), weight)] -}
 
