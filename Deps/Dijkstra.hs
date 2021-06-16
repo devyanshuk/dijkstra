@@ -83,23 +83,35 @@ _dijkstra graph queue costs prev visited
         unvisitedNeighbors = filter (\neighbor ->
                                         (item neighbor) `Set.notMember` visited 
                                     ) $ outgoingEdge graph nodeWithSmallestPrio
-        ((costs', prev'), queue'') = updatePathAndPrev nodeWithSmallestPrio smallestPrio unvisitedNeighbors costs prev queue'
+        ((costs', prev'), queue'') = updatePathPrevAndQueue nodeWithSmallestPrio smallestPrio unvisitedNeighbors costs prev queue'
         visited' = Set.insert nodeWithSmallestPrio visited
 
 
-updatePathAndPrev :: (Eq a, Show a, Ord a)
-                     => a {- Node n -}
-                     -> Weight {- distance from source of node n -}
-                     -> [Neighbor a] {- unvisited outgoing edges of node n -}
-                     -> Map.Map a Weight {- path cost of all vertices -}
-                     -> Map.Map a a {- previous list -}
-                     -> Set.Set (Weight, a)
-                     -> ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a))
+updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
+                            => a {- Node n -}
+                            -> Weight {- distance from source of node n -}
+                            -> [Neighbor a] {- unvisited outgoing edges of node n -}
+                            -> Map.Map a Weight {- path cost of all vertices -}
+                            -> Map.Map a a {- previous list -}
+                            -> Set.Set (Weight, a)
+                            -> ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a))
 
-updatePathAndPrev _ _ [] costs prev queue = ((costs, prev), queue)
-updatePathAndPrev baseNode baseWeight (n : neighbors) costs prev queue
-    | newWeight >= prevWeight = updatePathAndPrev baseNode baseWeight neighbors costs prev queue
-    | otherwise = updatePathAndPrev baseNode baseWeight neighbors (Map.insert vert newWeight costs) (Map.insert vert baseNode prev) (Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue)
+updatePathPrevAndQueue _ _ [] costs prev queue = ((costs, prev), queue)
+updatePathPrevAndQueue baseNode baseWeight (n : neighbors) costs prev queue
+    | newWeight >= prevWeight = 
+                    updatePathPrevAndQueue baseNode
+                                           baseWeight
+                                           neighbors
+                                           costs
+                                           prev
+                                           queue
+    | otherwise =
+        updatePathPrevAndQueue baseNode
+                               baseWeight
+                               neighbors
+                               (Map.insert vert newWeight costs)
+                               (Map.insert vert baseNode prev)
+                               (Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue)
     where
         newWeight = baseWeight + (weight n)
         vert = item n
