@@ -10,7 +10,7 @@ loop :: [String] {- accumulator -}
 loop acc = do
     currLine <- getLine
     let trimmedLine = dropWhile isSpace currLine
-    if trimmedLine == [] then return $ reverse acc
+    if trimmedLine == [] then return acc
     else loop $ trimmedLine : acc
 
 
@@ -25,6 +25,7 @@ fromConsole = do
 
 fromFile :: String {- input filename -}
             -> IO (Graph String)
+
 fromFile inputFile = do
         contents <- readFile inputFile
         return $ parseGraph $ lines contents
