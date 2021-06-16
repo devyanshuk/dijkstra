@@ -75,16 +75,17 @@ _dijkstra :: (Eq a, Show a, Ord a)
              -> Maybe(Map.Map a Weight, Map.Map a a)
 
 _dijkstra Null _ _ _ _ = Nothing
-_dijkstra _ empty costs prev _ = Just(costs, prev)
-_dijkstra graph queue costs prev visited = _dijkstra graph queue' costs' prev' visited'
-                                        where
-                                            ((smallestPrio, nodeWithSmallestPrio), queue') = Set.deleteFindMin queue
-                                            unvisitedNeighbors = filter (\neighbor ->
-                                                                            (item neighbor) `Set.notMember` visited )
-                                                                        $ outgoingEdge graph nodeWithSmallestPrio
-                                            (costs', prev') = updatePathAndPrev nodeWithSmallestPrio smallestPrio unvisitedNeighbors costs prev
-                                            visited' = Set.insert nodeWithSmallestPrio visited
-                                            -- TODO : update priority of neighbors of nodesWithSmallestPrio in queue'
+_dijkstra graph queue costs prev visited
+    | Set.null queue = Just(costs, prev)
+    | otherwise = _dijkstra graph queue' costs' prev' visited'
+    where
+        ((smallestPrio, nodeWithSmallestPrio), queue') = Set.deleteFindMin queue
+        unvisitedNeighbors = filter (\neighbor ->
+                                        (item neighbor) `Set.notMember` visited )
+                                    $ outgoingEdge graph nodeWithSmallestPrio
+        (costs', prev') = updatePathAndPrev nodeWithSmallestPrio smallestPrio unvisitedNeighbors costs prev
+        visited' = Set.insert nodeWithSmallestPrio visited
+        -- TODO : update priority of neighbors of nodesWithSmallestPrio in queue'
 
 
 updatePathAndPrev :: (Eq a, Show a, Ord a)
