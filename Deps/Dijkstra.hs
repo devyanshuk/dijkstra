@@ -36,9 +36,9 @@ initializeSingleSource Null _ _ = []
 initializeSingleSource graph@(Graph g) source vertices
     | source `elem` vertices =
             foldr (\v acc ->
-                if v == source then (0.0, v):acc
-                else (1.0/0.0, v):acc
-        ) [] vertices
+                        if v == source then (0.0, v):acc
+                        else (1.0/0.0, v):acc
+                  ) [] vertices
     | otherwise = error $ (show source) ++ " : vertex not present in graph"
 
 
