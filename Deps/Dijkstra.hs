@@ -1,6 +1,9 @@
 module Deps.Dijkstra 
 (
-    dijkstra
+    dijkstra,
+    getPathTo,
+    DijkstraResult,
+    toList
 )
 where
 
@@ -8,24 +11,12 @@ import Deps.Graph
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
-{-
-type ShortestPath a = [a]
+type DijkstraResult a = (Map.Map a Weight, Map.Map a a)
 
-data Distance a = PositiveInfinity | Distance a
-    deriving(Show, Eq)
-
-instance Ord a => Ord (Distance a) where
-    compare PositiveInfinity PositiveInfinity = EQ
-    compare PositiveInfinity _ = GT
-    compare _ PositiveInfinity = LT
-    compare (Distance x) (Distance y) = compare x y
-
--}
-
+toList = Map.toList
 
 {- sets distance (from the source vertex) for the source vertex to 0
    and the remaining vertices of the graph to infinity -}
-
 initializeSingleSource :: (Eq a, Show a)
                           => Graph a
                           -> a {- source vertex -}
@@ -47,7 +38,7 @@ initializeSingleSource graph@(Graph g) source vertices
 dijkstra :: (Eq a, Show a, Ord a)
             => Graph a
             -> a {- source vertex -}
-            -> Maybe(Map.Map a Weight, Map.Map a a)
+            -> Maybe (DijkstraResult a)
 
 dijkstra Null _ = Nothing
 dijkstra graph source = _dijkstra graph priorityQueue pathCost Map.empty visited
@@ -72,7 +63,7 @@ _dijkstra :: (Eq a, Show a, Ord a)
              -> Map.Map a Weight {- path cost of each vertex from source -}
              -> Map.Map a a {- previous 'list' -}
              -> Set.Set a {- set of unvisited vertices -}
-             -> Maybe(Map.Map a Weight, Map.Map a a)
+             -> Maybe (DijkstraResult a)
 
 _dijkstra Null _ _ _ _ = Nothing
 _dijkstra graph queue costs prev visited
@@ -87,6 +78,7 @@ _dijkstra graph queue costs prev visited
         visited' = Set.insert nodeWithSmallestPrio visited
 
 
+
 updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
                             => a {- Node n -}
                             -> Weight {- distance from source of node n -}
@@ -98,21 +90,38 @@ updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
 
 updatePathPrevAndQueue _ _ [] costs prev queue = ((costs, prev), queue)
 updatePathPrevAndQueue baseNode baseWeight (n : neighbors) costs prev queue
-    | newWeight >= prevWeight = 
-                    updatePathPrevAndQueue baseNode
-                                           baseWeight
-                                           neighbors
-                                           costs
-                                           prev
-                                           queue
-    | otherwise =
-        updatePathPrevAndQueue baseNode
-                               baseWeight
-                               neighbors
-                               (Map.insert vert newWeight costs)
-                               (Map.insert vert baseNode prev)
-                               (Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue)
+    | newWeight >= prevWeight = updatePathPrevAndQueue baseNode
+                                                       baseWeight
+                                                       neighbors
+                                                       costs
+                                                       prev
+                                                       queue
+    | otherwise = updatePathPrevAndQueue baseNode
+                                         baseWeight
+                                         neighbors
+                                         (Map.insert vert newWeight costs)
+                                         (Map.insert vert baseNode prev)
+                                         (Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue)
     where
         newWeight = baseWeight + (weight n)
         vert = item n
         prevWeight = costs Map.! vert
+
+
+
+{-
+    Given results for dijkstra's algorithm,
+    return the shortest path to a node
+-}
+getPathTo :: (Eq a, Show a, Ord a)
+             => a
+             -> Maybe (DijkstraResult a)
+             -> [a]
+
+getPathTo _ Nothing = []
+getPathTo destination result@(Just (costs, prev))
+    | distanceFromSource == (1.0/0.0) = []
+    | distanceFromSource == 0.0 = [destination]
+    | otherwise = (getPathTo (prev Map.! destination) result) ++ [destination]
+    where
+        distanceFromSource = costs Map.! destination             
