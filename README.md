@@ -47,7 +47,9 @@ b c 2
 a d 9
 b d 2
 >
-> getPathTo "d" $ dijkstra g "a"
+> import Data.List(reverse)
+>
+> reverse $ getPathTo "d" $ dijkstra g "a"
 ["a","d"]
 >
 > displayShortestPathsFrom g "a"
