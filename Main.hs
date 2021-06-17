@@ -66,12 +66,10 @@ displayPath :: (Eq a, Show a, Ord a)
 displayPath [] _ = do return ()
 displayPath ((destinationNode, distanceFromSource) : rest) result = do
         let path = reverse $ getPathTo destinationNode result
-        putStrLn $ (show destinationNode) ++ " : " ++ (displayList path) ++ " Distance : " ++ (show distanceFromSource)
+        putStrLn $ show destinationNode ++ " : " ++ displayList path ++ " Distance : " ++ show distanceFromSource
         displayPath rest result
 
 
 
 displayList :: Show a => [a] -> String
-displayList [] = ""
-displayList [x] = show x
-displayList (x:xs) = (show x) ++ " -> " ++ displayList xs
+displayList xs = intercalate " -> " (map show xs)
