@@ -82,10 +82,10 @@ _dijkstra graph queue costs prev visited
 updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
                             => a {- Node n -}
                             -> Weight {- distance from source of node n -}
-                            -> [Neighbor a] {- unvisited outgoing edges of node n -}
+                            -> [Neighbor a] {- unvisited outgoing edges to node n -}
                             -> Map.Map a Weight {- path cost of all vertices -}
                             -> Map.Map a a {- previous list -}
-                            -> Set.Set (Weight, a)
+                            -> Set.Set (Weight, a) {- priority queue -}
                             -> ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a))
 
 updatePathPrevAndQueue _ _ [] costs prev queue = ((costs, prev), queue)
