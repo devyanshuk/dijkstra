@@ -23,12 +23,11 @@ toList = Map.toList
 {- sets distance (from the source vertex) for the source vertex to 0
    and the remaining vertices of the graph to infinity -}
 initializeSingleSource :: (Eq a, Show a)
-                          => Graph a
-                          -> a {- source vertex -}
+                          => a {- source vertex -}
                           -> [a] {- all vertices of the graph -}
                           -> [(Weight, a)] {- (distance from source, node) -}
 
-initializeSingleSource graph@(Graph g) source vertices
+initializeSingleSource source vertices
     | source `elem` vertices =
             [ (if v == source then 0.0 else 1.0/0.0, v) | v <- vertices ]
 
@@ -45,7 +44,7 @@ dijkstra :: (Eq a, Show a, Ord a)
 dijkstra graph source = _dijkstra graph initialState visited
                     where
                         vertices = allVertices graph
-                        initDistance = initializeSingleSource graph source vertices
+                        initDistance = initializeSingleSource source vertices
                         priorityQueue = Set.fromList initDistance
                         pathCost = Map.fromList $ map swap initDistance
                         visited = Set.empty
