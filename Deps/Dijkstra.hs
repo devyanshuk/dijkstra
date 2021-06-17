@@ -12,16 +12,21 @@ import Data.Tuple(swap)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
-{- ((path cost, previous vertex of a node in the shortest path), priority queue) -}
+{-((path cost, previous vertex of a node in the shortest path), priority queue) -}
 type QueueState a = ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a)) 
 
 {- (path cost, previous vertex of a node in the shortest path) -}
 type DijkstraResult a = (Map.Map a Weight, Map.Map a a)
 
+
+
 toList = Map.toList
 
-{- sets distance (from the source vertex) for the source vertex to 0
-   and the remaining vertices of the graph to infinity -}
+
+{- 
+    sets distance (from the source vertex) for the source vertex to 0
+    and the remaining vertices of the graph to infinity
+-}
 initializeSingleSource :: (Eq a, Show a)
                           => a {- source vertex -}
                           -> [a] {- all vertices of the graph -}
@@ -35,13 +40,16 @@ initializeSingleSource source vertices
 
 
 
-{- given a graph and a source vertex, return a list of shortest path to all other vertices -}
+{- 
+    given a graph and a source vertex,
+    return a list of shortest path to all other vertices
+-}
 dijkstra :: (Eq a, Show a, Ord a)
             => Graph a
             -> a {- source vertex -}
             -> DijkstraResult a
 
-dijkstra graph source = _dijkstra graph initialState visited
+dijkstra graph source = dijkstra' graph initialState visited
                     where
                         vertices = allVertices graph
                         initDistance = initializeSingleSource source vertices
@@ -59,15 +67,15 @@ dijkstra graph source = _dijkstra graph initialState visited
         update the path cost of v to (priority(n) + length(n, v)) and previous node of v to n
     3) recursively follow (1) and (2) until the priority queue is empty
 -}
-_dijkstra :: (Eq a, Show a, Ord a)
+dijkstra' :: (Eq a, Show a, Ord a)
              => Graph a
              -> QueueState a
              -> Set.Set a {- explored set -}
              -> DijkstraResult a
 
-_dijkstra graph ((costs, prev), queue) visited
+dijkstra' graph ((costs, prev), queue) visited
     | Set.null queue = (costs, prev)
-    | otherwise = _dijkstra graph newState visited'
+    | otherwise = dijkstra' graph newState visited'
     where
         ((smallestPrio, nodeWithSmallestPrio), queue') = Set.deleteFindMin queue
         unvisitedNeighbors = filter 
@@ -81,12 +89,15 @@ _dijkstra graph ((costs, prev), queue) visited
 
 
 
+{-
+    Step 2 of the aforementioned algorithm
+-}
 updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
                             => a {- Node n -}
                             -> Weight {- distance from source of node n -}
-                            -> QueueState a {- current cost, prev and queue state -}
-                            -> Neighbor a
-                            -> QueueState a
+                            -> QueueState a {- ((current cost, currnet prev), current queue) -}
+                            -> Neighbor a {- neighbor of node n -}
+                            -> QueueState a {- ((updated cost, updated prev), updated queue) -}
 
 updatePathPrevAndQueue baseNode baseWeight currState@((costs, prev), queue) neighbor
     | newWeight >= prevWeight = currState
@@ -106,8 +117,8 @@ updatePathPrevAndQueue baseNode baseWeight currState@((costs, prev), queue) neig
     return the shortest path to a node (in reversed order)
 -}
 getPathTo :: (Eq a, Show a, Ord a)
-             => a
-             -> DijkstraResult a
+             => a {- destination vertex -}
+             -> DijkstraResult a {- result of Dijkstra's algorithm -}
              -> [a]
 
 getPathTo destination result@(costs, prev)

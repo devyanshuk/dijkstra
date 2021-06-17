@@ -34,7 +34,9 @@ type ParsedInputLine a = ((a, a), Weight) -- ((vertex1, vertex2), weight)
 
 
 
-{- Given a list of ((from, to), weight), convert it into a graph type -}
+{-
+    Given a list of ((from, to), weight), convert it into a graph type
+-}
 parseToGraph :: [ParsedInputLine String]
                 -> Map.Map String [Neighbor String]
 
@@ -52,7 +54,9 @@ parseToGraph parsedLines =
 
 
 
-{- Vertex1 Vertex2 Weight [Comments/Extra info will be ignored] -}
+{- 
+    Vertex1 Vertex2 Weight [Comments/Extra info will be ignored]
+-}
 parseLine :: [RawInputLine] -> ParsedInputLine String
 parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
                                         Nothing -> error "Parse error"
@@ -62,7 +66,9 @@ parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
 
 
     
-{- given a string (node1 node2 weight)*, parse it into graph -}
+{-
+    given a string (node1 node2 weight)*, parse it into graph
+-}
 parseGraph :: [RawInputLine] -> Graph String
 parseGraph [] = Graph (Map.empty)
 parseGraph inputLines = Graph $ parseToGraph parsed
@@ -72,7 +78,9 @@ parseGraph inputLines = Graph $ parseToGraph parsed
 
 
 
-{- Given a graph and a vertex, return the vertex and a list of all its neighbors -}
+{-
+    Given a graph and a vertex, return the vertex and a list of all its neighbors
+-}
 nodeInfo :: (Eq a, Ord a)
             => Graph a
             -> a {- node to find information for -}
@@ -84,7 +92,9 @@ nodeInfo (Graph g) vertex = fmap (\neighborList -> (vertex, neighborList)) item
 
 
 
-{- all neighbors of a node in the graph -}
+{-
+    all neighbors of a node in the graph
+-}
 outgoingEdge :: (Eq a, Ord a)
                 => Graph a
                 -> a {- vertex to find outgoing edges for -}
@@ -98,7 +108,9 @@ outgoingEdge graph@(Graph g) vertex = case info of
 
 
                                 
-{- [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> ["a", "b"]   -}
+{-
+    [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> ["a", "b"]
+-}
 nodeFor :: (Eq a, Ord a)
             => [Neighbor a]
             -> [a]
@@ -106,7 +118,9 @@ nodeFor = map item
 
 
 
-{- [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> [12.0, 1.0]   -}
+{-
+    [Neighbor { item = "a", weight = 12.0}, Neighbor { item = "b", weight = 1.0}]  -> [12.0, 1.0]
+-}
 weightFor :: (Eq a, Ord a)
             => [Neighbor a]
             -> [Weight]
@@ -114,7 +128,9 @@ weightFor = map weight
 
 
 
-{- return all vertices of a graph. -}
+{-
+    return all vertices of a graph.
+-}
 allVertices :: (Eq a, Ord a)
                => Graph a
                -> [a]
@@ -124,7 +140,9 @@ allVertices (Graph g) | Map.null g = []
 
 
 
-{- return all edges of a graph. Format : ((from, to), weight) -}
+{-
+    return all edges of a graph. Format : ((from, to), weight)
+-}
 allEdges :: (Eq a, Ord a)
             => Graph a
             -> [((a, a), Weight)] {- [((from, to), weight)] -}
