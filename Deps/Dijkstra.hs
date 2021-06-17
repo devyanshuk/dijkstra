@@ -22,7 +22,7 @@ initializeSingleSource :: (Eq a, Show a)
                           => Graph a
                           -> a {- source vertex -}
                           -> [a] {- all vertices of the graph -}
-                          -> [(Weight, a)] {- (distance from source, (node, previous)) -}
+                          -> [(Weight, a)] {- (distance from source, node) -}
 
 initializeSingleSource graph@(Graph g) source vertices
     | source `elem` vertices =
