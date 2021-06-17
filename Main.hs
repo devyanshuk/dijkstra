@@ -2,6 +2,7 @@ import Deps.Graph
 import Deps.Dijkstra
 import Data.Char(isSpace)
 import Data.List(dropWhile, intercalate)
+import qualified Data.Map as Map
 
 loop :: [String] {- accumulator -}
         -> IO [String]
@@ -14,6 +15,9 @@ loop acc = do
 
 
 
+{-
+        Reads lines from the console and produces a String Graph
+-}
 fromConsole :: IO (Graph String)
 fromConsole = do
         putStrLn "Format : [vertex1] [vertex2] [edge]. Press Enter to stop giving input"
@@ -22,6 +26,9 @@ fromConsole = do
 
 
 
+{-
+        Reads lines from a file and produces a String Graph
+-}
 fromFile :: String {- input filename -}
             -> IO (Graph String)
 
@@ -41,21 +48,19 @@ displayShortestPathsFrom :: (Eq a, Show a, Ord a)
                             -> a
                             -> IO()
 
-displayShortestPathsFrom Null _ = do return ()
-displayShortestPathsFrom graph start = do
-    let result = dijkstra graph start
-    case result of
-        Nothing -> do
+displayShortestPathsFrom graph@(Graph g) start =
+        if Map.null g then do
                 return ()
-
-        (Just (costs, _)) -> do            
+        else do
+                let result@(costs, _) = dijkstra graph start       
                 let costsList = toList costs
                 displayPath costsList result
 
 
+
 displayPath :: (Eq a, Show a, Ord a)
                =>[(a, Weight)]
-               -> Maybe (DijkstraResult a)
+               -> DijkstraResult a
                -> IO()
 
 displayPath [] _ = do return ()
@@ -64,7 +69,7 @@ displayPath ((destinationNode, distanceFromSource) : rest) result = do
         putStrLn $ (show destinationNode) ++ " : " ++ (displayList path) ++ " Distance : " ++ (show distanceFromSource)
         displayPath rest result
 
-        
+
 
 displayList :: Show a => [a] -> String
 displayList [] = ""

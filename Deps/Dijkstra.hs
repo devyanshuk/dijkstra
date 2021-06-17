@@ -8,6 +8,7 @@ module Deps.Dijkstra
 where
 
 import Deps.Graph
+import Data.Tuple(swap)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
@@ -23,7 +24,6 @@ initializeSingleSource :: (Eq a, Show a)
                           -> [a] {- all vertices of the graph -}
                           -> [(Weight, a)] {- (distance from source, (node, previous)) -}
 
-initializeSingleSource Null _ _ = []
 initializeSingleSource graph@(Graph g) source vertices
     | source `elem` vertices =
             foldr (\v acc ->
@@ -38,15 +38,14 @@ initializeSingleSource graph@(Graph g) source vertices
 dijkstra :: (Eq a, Show a, Ord a)
             => Graph a
             -> a {- source vertex -}
-            -> Maybe (DijkstraResult a)
+            -> DijkstraResult a
 
-dijkstra Null _ = Nothing
 dijkstra graph source = _dijkstra graph priorityQueue pathCost Map.empty visited
                     where
                         vertices = allVertices graph
                         initDistance = initializeSingleSource graph source vertices
                         priorityQueue = Set.fromList initDistance
-                        pathCost = Map.fromList $ map (\(x, y) -> (y, x)) initDistance
+                        pathCost = Map.fromList $ map swap initDistance
                         visited = Set.empty
 
 
@@ -61,20 +60,25 @@ _dijkstra :: (Eq a, Show a, Ord a)
              => Graph a
              -> Set.Set (Weight, a) {- priority queue -}
              -> Map.Map a Weight {- path cost of each vertex from source -}
-             -> Map.Map a a {- previous 'list' -}
-             -> Set.Set a {- set of unvisited vertices -}
-             -> Maybe (DijkstraResult a)
+             -> Map.Map a a {- (node, previous) this set keeps track of all previous nodes in the shortest path -}
+             -> Set.Set a {- explored set -}
+             -> DijkstraResult a
 
-_dijkstra Null _ _ _ _ = Nothing
 _dijkstra graph queue costs prev visited
-    | Set.null queue = Just(costs, prev)
+    | Set.null queue = (costs, prev)
     | otherwise = _dijkstra graph queue'' costs' prev' visited'
     where
         ((smallestPrio, nodeWithSmallestPrio), queue') = Set.deleteFindMin queue
-        unvisitedNeighbors = filter (\neighbor ->
+        unvisitedNeighbors = filter 
+                                (\neighbor ->
                                         (item neighbor) `Set.notMember` visited 
-                                    ) $ outgoingEdge graph nodeWithSmallestPrio
-        ((costs', prev'), queue'') = updatePathPrevAndQueue nodeWithSmallestPrio smallestPrio unvisitedNeighbors costs prev queue'
+                                ) $ outgoingEdge graph nodeWithSmallestPrio
+        ((costs', prev'), queue'') = updatePathPrevAndQueue nodeWithSmallestPrio
+                                                            smallestPrio
+                                                            unvisitedNeighbors
+                                                            costs
+                                                            prev
+                                                            queue'
         visited' = Set.insert nodeWithSmallestPrio visited
 
 
@@ -115,11 +119,10 @@ updatePathPrevAndQueue baseNode baseWeight (n : neighbors) costs prev queue
 -}
 getPathTo :: (Eq a, Show a, Ord a)
              => a
-             -> Maybe (DijkstraResult a)
+             -> DijkstraResult a
              -> [a]
 
-getPathTo _ Nothing = []
-getPathTo destination result@(Just (costs, prev))
+getPathTo destination result@(costs, prev)
     | distanceFromSource == (1.0/0.0) = []
     | distanceFromSource == 0.0 = [destination]
     | otherwise = (getPathTo (prev Map.! destination) result) ++ [destination]
