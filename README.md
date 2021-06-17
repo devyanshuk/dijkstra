@@ -35,7 +35,7 @@ Graph (fromList [("v1",[Neighbor {item = "v2", weight = 1.0},Neighbor {item = "v
 >
 > import Data.List(reverse, intercalate)
 >
-> intercalate " -> " $ reverse $ getPathTo "v6" $ dijkstra g "v1"
+> intercalate " -> " . reverse . getPathTo "v6" $ dijkstra g "v1"
 "v1 -> v2 -> v4 -> v6"
 ```
 
