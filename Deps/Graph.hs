@@ -38,14 +38,16 @@ type ParsedInputLine a = ((a, a), Weight) -- ((vertex1, vertex2), weight)
 parseToGraph :: [((String, String), Weight)]
                 -> Map.Map String [Neighbor String]
 
-parseToGraph parsedLines = Map.fromList $ map (\n -> (n, outgoingEdges n parsedLines)) sources
-                        where
-                            sources = nub $ map (fst . fst) parsedLines
+parseToGraph parsedLines =
+    Map.fromList $ map (\n -> (n, outgoingEdges n parsedLines)) sources
+    where
+        sources = nub $ map (fst . fst) parsedLines
 
-                            outgoingEdges :: String -> [((String, String), Weight)] -> [Neighbor String]
-                            outgoingEdges node parsedLines = map (\((_, vertex2), weight) -> Neighbor vertex2 weight) allNodes
-                                                where
-                                                    allNodes = filter (\((vertex1, _), _) -> node == vertex1) parsedLines
+        outgoingEdges :: String -> [((String, String), Weight)] -> [Neighbor String]
+        outgoingEdges node parsedLines =
+            map (\((_, vertex2), weight) -> Neighbor vertex2 weight) allNodes
+            where
+                allNodes = filter (\((vertex1, _), _) -> node == vertex1) parsedLines
 
 
 
@@ -67,7 +69,7 @@ parseGraph :: [String] -> Graph String
 parseGraph [] = Graph (Map.empty)
 parseGraph inputLines = Graph $ parseToGraph parsed
                     where
-                        parsed = map (parseLine . words) $ filter (\x -> x /= []) inputLines
+                        parsed = map (parseLine . words) $ filter ( /= [] ) inputLines
     
 
 
@@ -78,10 +80,7 @@ nodeInfo :: (Eq a, Ord a)
             -> a {- node to find information for -}
             -> Maybe(a, [Neighbor a])
 
-nodeInfo (Graph g) vertex | Map.null g = Nothing
-                          | otherwise = case item of
-                                            Nothing -> Nothing
-                                            (Just neighborList) -> Just(vertex, neighborList)
+nodeInfo (Graph g) vertex = fmap (\neighborList -> (vertex, neighborList)) item
                           where
                               item = Map.lookup vertex g
 
@@ -93,10 +92,9 @@ outgoingEdge :: (Eq a, Ord a)
                 -> a {- vertex to find outgoing edges for -}
                 -> [Neighbor a]
 
-outgoingEdge graph@(Graph g) vertex | Map.null g = []
-                                    | otherwise = case info of
-                                                    Nothing -> []
-                                                    (Just (_, neighbors)) -> neighbors
+outgoingEdge graph@(Graph g) vertex = case info of
+                                        Nothing -> []
+                                        (Just (_, neighbors)) -> neighbors
                                     where
                                       info = nodeInfo graph vertex
 
@@ -124,7 +122,7 @@ allVertices :: (Eq a, Ord a)
                -> [a]
 
 allVertices (Graph g) | Map.null g = []
-                      | otherwise = nub $ foldr (\key acc -> key : (nodeFor $ g Map.! key) ++ acc) [] $ Map.keys g
+                      | otherwise = nub (Map.keys g ++ nodeFor (concat (Map.elems g)))
 
 
 
@@ -133,12 +131,11 @@ allEdges :: (Eq a, Ord a)
             => Graph a
             -> [((a, a), Weight)] {- [((from, to), weight)] -}
 
-allEdges (Graph g) | Map.null g = []
-                   | otherwise = [((source, _item), _weight) |  source <- Map.keys g,
-                                                                neighbor <- g Map.! source,
-                                                                let _item = item neighbor,
-                                                                let _weight = weight neighbor]
+allEdges (Graph g) =
+    [((from, item neighbor), weight neighbor) | (from, neighbors) <- assocList,
+                                                neighbor <- neighbors]
+    where
+        assocList = Map.assocs g
 
-    
 
     

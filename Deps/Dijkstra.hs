@@ -12,6 +12,10 @@ import Data.Tuple(swap)
 import qualified Data.Set as Set
 import qualified Data.Map as Map
 
+{- ((path cost, previous vertex of a node in the shortest path), priority queue) -}
+type QueueState a = ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a)) 
+
+{- (path cost, previous vertex of a node in the shortest path) -}
 type DijkstraResult a = (Map.Map a Weight, Map.Map a a)
 
 toList = Map.toList
@@ -73,12 +77,9 @@ _dijkstra graph queue costs prev visited
                                 (\neighbor ->
                                         (item neighbor) `Set.notMember` visited 
                                 ) $ outgoingEdge graph nodeWithSmallestPrio
-        ((costs', prev'), queue'') = updatePathPrevAndQueue nodeWithSmallestPrio
-                                                            smallestPrio
-                                                            unvisitedNeighbors
-                                                            costs
-                                                            prev
-                                                            queue'
+        initialState = ((costs, prev), queue')
+        ((costs', prev'), queue'') = 
+            foldl (updatePathPrevAndQueue nodeWithSmallestPrio smallestPrio) initialState unvisitedNeighbors
         visited' = Set.insert nodeWithSmallestPrio visited
 
 
@@ -86,29 +87,19 @@ _dijkstra graph queue costs prev visited
 updatePathPrevAndQueue :: (Eq a, Show a, Ord a)
                             => a {- Node n -}
                             -> Weight {- distance from source of node n -}
-                            -> [Neighbor a] {- unvisited outgoing edges from node n -}
-                            -> Map.Map a Weight {- path cost of all vertices -}
-                            -> Map.Map a a {- previous list -}
-                            -> Set.Set (Weight, a) {- priority queue -}
-                            -> ((Map.Map a Weight, Map.Map a a), Set.Set (Weight, a))
+                            -> QueueState a {- current cost, prev and queue state -}
+                            -> Neighbor a
+                            -> QueueState a
 
-updatePathPrevAndQueue _ _ [] costs prev queue = ((costs, prev), queue)
-updatePathPrevAndQueue baseNode baseWeight (n : neighbors) costs prev queue
-    | newWeight >= prevWeight = updatePathPrevAndQueue baseNode
-                                                       baseWeight
-                                                       neighbors
-                                                       costs
-                                                       prev
-                                                       queue
-    | otherwise = updatePathPrevAndQueue baseNode
-                                         baseWeight
-                                         neighbors
-                                         (Map.insert vert newWeight costs)
-                                         (Map.insert vert baseNode prev)
-                                         (Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue)
+updatePathPrevAndQueue baseNode baseWeight currState@((costs, prev), queue) neighbor
+    | newWeight >= prevWeight = currState
+    | otherwise =  ( 
+                       (Map.insert vert newWeight costs, Map.insert vert baseNode prev),
+                        Set.insert (newWeight, vert) $ Set.delete (prevWeight, vert) queue
+                    )
     where
-        newWeight = baseWeight + (weight n)
-        vert = item n
+        newWeight = baseWeight + (weight neighbor)
+        vert = item neighbor
         prevWeight = costs Map.! vert
 
 
@@ -125,6 +116,6 @@ getPathTo :: (Eq a, Show a, Ord a)
 getPathTo destination result@(costs, prev)
     | distanceFromSource == (1.0/0.0) = []
     | distanceFromSource == 0.0 = [destination]
-    | otherwise = (getPathTo (prev Map.! destination) result) ++ [destination]
+    | otherwise = destination : (getPathTo (prev Map.! destination) result)
     where
         distanceFromSource = costs Map.! destination             

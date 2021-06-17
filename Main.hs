@@ -65,7 +65,7 @@ displayPath :: (Eq a, Show a, Ord a)
 
 displayPath [] _ = do return ()
 displayPath ((destinationNode, distanceFromSource) : rest) result = do
-        let path = getPathTo destinationNode result
+        let path = reverse $ getPathTo destinationNode result
         putStrLn $ (show destinationNode) ++ " : " ++ (displayList path) ++ " Distance : " ++ (show distanceFromSource)
         displayPath rest result
 
