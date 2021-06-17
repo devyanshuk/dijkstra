@@ -17,24 +17,26 @@ Ok, three modules loaded.
 ```
 > g <- fromFile "graph"
 > g
-Graph [("v1",[Neighbor {item = "v2", weight = 1.0},Neighbor {item = "v4", weight = 34.0}]),("v2",[Neighbor {item = "v4", weight = 2.0}]),("v4",[Neighbor {item = "v6", weight = 2.0}]),("v3",[Neighbor {item = "v7", weight = 2.0}])]
+Graph (fromList [("v1",[Neighbor {item = "v2", weight = 1.0},Neighbor {item = "v4", weight = 34.0},Neighbor {item = "v3", weight = 1.0}]),("v2",[Neighbor {item = "v4", weight = 2.0},Neighbor {item = "v7", weight = 10.0}]),("v3",[Neighbor {item = "v7", weight = 2.0}]),("v4",[Neighbor {item = "v6", weight = 2.0}])])
 >
 > displayShortestPathsFrom g "v1"
 "v1" : "v1" Distance : 0.0
 "v2" : "v1" -> "v2" Distance : 1.0
-"v3" :  Distance : Infinity
+"v3" : "v1" -> "v3" Distance : 1.0
 "v4" : "v1" -> "v2" -> "v4" Distance : 3.0
 "v6" : "v1" -> "v2" -> "v4" -> "v6" Distance : 5.0
-"v7" :  Distance : Infinity
+"v7" : "v1" -> "v3" -> "v7" Distance : 3.0
 > 
 > allEdges g
-[(("v1","v2"),1.0),(("v1","v4"),34.0),(("v2","v4"),2.0),(("v4","v6"),2.0),(("v3","v7"),2.0)]
+[(("v1","v2"),1.0),(("v1","v4"),34.0),(("v1","v3"),1.0),(("v2","v4"),2.0),(("v2","v7"),10.0),(("v3","v7"),2.0),(("v4","v6"),2.0)]
 > 
 > outgoingEdge g "v2"
-[Neighbor {item = "v4", weight = 2.0}]
-> 
-> getPathTo "v6" $ dijkstra g "v1"
-["v1","v2","v4","v6"]
+[Neighbor {item = "v4", weight = 2.0},Neighbor {item = "v7", weight = 10.0}]
+>
+> import Data.List(reverse, intercalate)
+>
+> intercalate " -> " $ reverse $ getPathTo "v6" $ dijkstra g "v1"
+"v1 -> v2 -> v4 -> v6"
 ```
 
 #### Sample Usage II ( Console input )
@@ -59,3 +61,5 @@ b d 2
 "d" : "a" -> "d" Distance : 9.0
 > 
 ```
+
+
