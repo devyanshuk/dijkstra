@@ -41,7 +41,7 @@ fromFile inputFile = do
 {-
     Given a graph and a start vertex v,
     display shortest paths from v to all other vertices in the graph
-    Format : 
+    Format : {destination vertex} : {path} Distance : {distance}
 -}
 displayShortestPathsFrom :: (Eq a, Show a, Ord a)
                             => Graph a

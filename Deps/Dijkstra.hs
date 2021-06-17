@@ -106,7 +106,7 @@ updatePathPrevAndQueue baseNode baseWeight currState@((costs, prev), queue) neig
 
 {-
     Given results for dijkstra's algorithm,
-    return the shortest path to a node
+    return the shortest path to a node (in reversed order)
 -}
 getPathTo :: (Eq a, Show a, Ord a)
              => a
