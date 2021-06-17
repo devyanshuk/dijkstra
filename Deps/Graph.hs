@@ -29,13 +29,13 @@ data Graph a = Graph (Map.Map a [Neighbor a])
     deriving(Show, Eq, Ord)
 
 {- input types -}
-type RawInputLine = [String] -- [vertex1, vertex2, weight]
+type RawInputLine = String -- [vertex1, vertex2, weight]
 type ParsedInputLine a = ((a, a), Weight) -- ((vertex1, vertex2), weight)
 
 
 
 {- Given a list of ((from, to), weight), convert it into a graph type -}
-parseToGraph :: [((String, String), Weight)]
+parseToGraph :: [ParsedInputLine String]
                 -> Map.Map String [Neighbor String]
 
 parseToGraph parsedLines =
@@ -53,9 +53,7 @@ parseToGraph parsedLines =
 
 
 {- Vertex1 Vertex2 Weight [Comments/Extra info will be ignored] -}
-parseLine :: [String]
-             -> ((String, String), Weight)
-
+parseLine :: [RawInputLine] -> ParsedInputLine String
 parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
                                         Nothing -> error "Parse error"
                                         Just _weight -> ((vertex1, vertex2), _weight)
@@ -65,7 +63,7 @@ parseLine (vertex1:vertex2:weight:_) = case parsedWeight of
 
     
 {- given a string (node1 node2 weight)*, parse it into graph -}
-parseGraph :: [String] -> Graph String
+parseGraph :: [RawInputLine] -> Graph String
 parseGraph [] = Graph (Map.empty)
 parseGraph inputLines = Graph $ parseToGraph parsed
                     where
