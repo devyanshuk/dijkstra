@@ -18,6 +18,7 @@ Ok, three modules loaded.
 > g <- fromFile "graph"
 > g
 Graph [("v1",[Neighbor {item = "v2", weight = 1.0},Neighbor {item = "v4", weight = 34.0}]),("v2",[Neighbor {item = "v4", weight = 2.0}]),("v4",[Neighbor {item = "v6", weight = 2.0}]),("v3",[Neighbor {item = "v7", weight = 2.0}])]
+>
 > displayShortestPathsFrom g "v1"
 "v1" : "v1" Distance : 0.0
 "v2" : "v1" -> "v2" Distance : 1.0
