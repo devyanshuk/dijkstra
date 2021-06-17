@@ -44,13 +44,15 @@ dijkstra :: (Eq a, Show a, Ord a)
             -> a {- source vertex -}
             -> DijkstraResult a
 
-dijkstra graph source = _dijkstra graph priorityQueue pathCost Map.empty visited
+dijkstra graph source = _dijkstra graph initialState visited
                     where
                         vertices = allVertices graph
                         initDistance = initializeSingleSource graph source vertices
                         priorityQueue = Set.fromList initDistance
                         pathCost = Map.fromList $ map swap initDistance
                         visited = Set.empty
+                        prev = Map.empty
+                        initialState = ((pathCost, prev), priorityQueue)
 
 
 
@@ -62,15 +64,13 @@ dijkstra graph source = _dijkstra graph priorityQueue pathCost Map.empty visited
 -}
 _dijkstra :: (Eq a, Show a, Ord a)
              => Graph a
-             -> Set.Set (Weight, a) {- priority queue -}
-             -> Map.Map a Weight {- path cost of each vertex from source -}
-             -> Map.Map a a {- (node, previous) this set keeps track of all previous nodes in the shortest path -}
+             -> QueueState a
              -> Set.Set a {- explored set -}
              -> DijkstraResult a
 
-_dijkstra graph queue costs prev visited
+_dijkstra graph ((costs, prev), queue) visited
     | Set.null queue = (costs, prev)
-    | otherwise = _dijkstra graph queue'' costs' prev' visited'
+    | otherwise = _dijkstra graph newState visited'
     where
         ((smallestPrio, nodeWithSmallestPrio), queue') = Set.deleteFindMin queue
         unvisitedNeighbors = filter 
@@ -78,7 +78,7 @@ _dijkstra graph queue costs prev visited
                                         (item neighbor) `Set.notMember` visited 
                                 ) $ outgoingEdge graph nodeWithSmallestPrio
         initialState = ((costs, prev), queue')
-        ((costs', prev'), queue'') = 
+        newState = 
             foldl (updatePathPrevAndQueue nodeWithSmallestPrio smallestPrio) initialState unvisitedNeighbors
         visited' = Set.insert nodeWithSmallestPrio visited
 
